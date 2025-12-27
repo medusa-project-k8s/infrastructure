@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medusa-ingress
+  namespace: medusa
+  annotations:
+    # Uncomment and configure based on your ingress controller
+    # For nginx-ingress:
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+    # nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # For cloud providers, use their specific annotations
+spec:
+  ingressClassName: nginx  # Change to your ingress class
+  rules:
+  - host: medusa.local  # Change to your domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: medusa
+            port:
+              number: 9000
+  # Uncomment for TLS
+  # tls:
+  # - hosts:
+  #   - medusa.local
+  #   secretName: medusa-tls
