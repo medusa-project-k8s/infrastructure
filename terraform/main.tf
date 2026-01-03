@@ -50,4 +50,13 @@ resource "proxmox_virtual_environment_vm" "vms" {
 
     # Start VM after creation (will boot from ISO)
     started = true
+
+    # Ignore changes to cdrom after creation
+    # This allows you to manually remove the ISO from Proxmox Web UI or via API
+    # and Terraform won't try to re-add it on subsequent runs
+    lifecycle {
+        ignore_changes = [
+            cdrom,
+        ]
+    }
 }
