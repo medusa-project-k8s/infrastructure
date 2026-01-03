@@ -21,9 +21,20 @@ resource "proxmox_virtual_environment_vm" "vms" {
     name      = each.key
     node_name = each.value.node_name
 
-    # Boot from ISO instead of cloning
-    cdrom {
-        file_id = each.value.iso_file
+    # Clone from template if template_id is provided, otherwise boot from ISO
+    dynamic "clone" {
+        for_each = each.value.template_id != null ? [1] : []
+        content {
+            vm_id = each.value.template_id
+        }
+    }
+
+    # Boot from ISO (only if template_id is not provided)
+    dynamic "cdrom" {
+        for_each = each.value.template_id == null && each.value.iso_file != null ? [1] : []
+        content {
+            file_id = each.value.iso_file
+        }
     }
 
     cpu {
@@ -48,12 +59,38 @@ resource "proxmox_virtual_environment_vm" "vms" {
         bridge = each.value.network_bridge
     }
 
-    # Start VM after creation (will boot from ISO)
+    # Cloud-init initialization (works with templates)
+    dynamic "initialization" {
+        for_each = each.value.template_id != null ? [1] : []
+        content {
+            datastore_id = each.value.disk_storage
+            
+            user_account {
+                username = each.value.username
+                password = each.value.password
+                keys     = length(each.value.ssh_keys) > 0 ? each.value.ssh_keys : null
+            }
+
+            dynamic "ip_config" {
+                for_each = each.value.ip_address != null ? [1] : []
+                content {
+                    ipv4 {
+                        address = each.value.ip_address
+                        gateway = each.value.ip_gateway
+                    }
+                }
+            }
+
+            dns {
+                servers = [each.value.nameserver]
+            }
+        }
+    }
+
+    # Start VM after creation
     started = true
 
-    # Ignore changes to cdrom after creation
-    # This allows you to manually remove the ISO from Proxmox Web UI or via API
-    # and Terraform won't try to re-add it on subsequent runs
+    # Ignore changes to cdrom after creation (for ISO-based VMs)
     lifecycle {
         ignore_changes = [
             cdrom,
