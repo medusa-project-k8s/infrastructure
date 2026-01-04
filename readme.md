@@ -347,3 +347,4 @@ k8s/
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [Medusa Documentation](https://docs.medusajs.com/)
 - [Kustomize Documentation](https://kustomize.io/)
+
