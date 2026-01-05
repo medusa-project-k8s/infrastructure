@@ -1,3 +1,15 @@
 # This workflow is used to build the back-end of the Medusa application
 
-#name: Back-End
+name: Back-End
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
