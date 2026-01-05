@@ -1,7 +1,7 @@
 kubernetes/secret.yaml
 docker-compose.yaml
 .env
-talos_linux_setup
+talos_linux_setup/persephone-shop
 
 # Environment files
 .env
