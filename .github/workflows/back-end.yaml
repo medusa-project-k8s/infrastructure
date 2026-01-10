@@ -18,14 +18,13 @@ jobs:
           ref: 'develop'
           token: ${{ secrets.MY_PERSONAL_TOKEN }}
 
-      # Option 1: Use Dockerfile from another repo - Checkout that repo first
-      # - name: Checkout Dockerfile repository
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: 'YourOrg/dockerfile-repo'
-      #     ref: 'main'
-      #     token: ${{ secrets.MY_PERSONAL_TOKEN }}
-      #     path: dockerfile-repo
+      - name: Checkout Dockerfile repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'medusa-project-k8s/medusa-project-backend'
+          ref: 'main'
+          token: ${{ secrets.MY_PERSONAL_TOKEN }}
+          path: ./Dockerfile
 
       # Option 2: Download Dockerfile from URL
       # - name: Download Dockerfile
@@ -52,8 +51,7 @@ jobs:
           # Option C: If using downloaded Dockerfile, use:
           # file: ./Dockerfile
           push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/medusa-backend:latest
+          tags:
             ${{ secrets.DOCKER_HUB_USERNAME }}/medusa-backend:${{ github.sha }}
           build-args: |
             # Add your build arguments here if needed
