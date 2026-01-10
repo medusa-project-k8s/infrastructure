@@ -24,7 +24,7 @@ jobs:
           repository: 'medusa-project-k8s/medusa-project-backend'
           ref: 'main'
           token: ${{ secrets.MY_PERSONAL_TOKEN }}
-          path: Dockerfile
+          path: .
 
       # Option 2: Download Dockerfile from URL
       # - name: Download Dockerfile
