@@ -1,15 +1,60 @@
-# This workflow is used to build the front-end of the Medusa application
+name: Prod front-end to Docker Hub
 
-name: Front-End
+permissions:
+  contents: read
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch  # Manual trigger
 
 jobs:
-  build:
+  build-and-push:
+    # This job will only run on a self-hosted runner that has these labels.
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'medusajs/medusa'
+          ref: 'develop'
+          token: ${{ secrets.MY_PERSONAL_TOKEN }}
+
+      - name: Checkout Dockerfile repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'medusa-project-k8s/medusa-project-frontend'
+          ref: 'main'
+          token: ${{ secrets.MY_PERSONAL_TOKEN }}
+          path: .
+
+      # Option 2: Download Dockerfile from URL
+      # - name: Download Dockerfile
+      #   run: |
+      #     curl -o Dockerfile https://raw.githubusercontent.com/YourOrg/repo/main/path/to/Dockerfile
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push Docker image to Docker Hub
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          # Option A: Dockerfile in current repo (medusajs/medusa) - adjust path as needed
+          file: ./Dockerfile
+          # Option B: If using Dockerfile from another repo (after checkout), use:
+          # file: ./dockerfile-repo/Dockerfile
+          # Option C: If using downloaded Dockerfile, use:
+          # file: ./Dockerfile
+          push: true
+          tags:
+            ${{ secrets.DOCKER_HUB_USERNAME }}/medusa-backend:${{ github.sha }}
+          build-args: |
+            # Add your build arguments here if needed
+            # ENV_VAR=value
+        # Note: Update DOCKER_HUB_USERNAME secret with your Docker Hub username
+        # Note: Update DOCKER_HUB_TOKEN secret with your Docker Hub access token
