@@ -39,6 +39,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          # IMPORTANT: DOCKER_HUB_TOKEN must be a Docker Hub Access Token (not password)
+          # Create one at: https://hub.docker.com/settings/security
+          # Token must have "Read, Write & Delete" permissions
 
       - name: Build and push Docker image to Docker Hub
         uses: docker/build-push-action@v5
@@ -58,3 +61,10 @@ jobs:
             # ENV_VAR=value
         # Note: Update DOCKER_HUB_USERNAME secret with your Docker Hub username
         # Note: Update DOCKER_HUB_TOKEN secret with your Docker Hub access token
+        # 
+        # To fix "insufficient scopes" error:
+        # 1. Go to https://hub.docker.com/settings/security
+        # 2. Create a new Access Token with "Read, Write & Delete" permissions
+        # 3. Copy the token immediately (you can't see it again)
+        # 4. Update the DOCKER_HUB_TOKEN secret in GitHub repository settings
+        # 5. Ensure the repository name matches: <username>/medusa-backend
