@@ -45,7 +45,7 @@ jobs:
         with:
           context: .
           # Option A: Dockerfile in current repo (medusajs/medusa) - adjust path as needed
-          file: ./packages/medusa/Dockerfile
+          file: ./Dockerfile
           # Option B: If using Dockerfile from another repo (after checkout), use:
           # file: ./dockerfile-repo/Dockerfile
           # Option C: If using downloaded Dockerfile, use:
