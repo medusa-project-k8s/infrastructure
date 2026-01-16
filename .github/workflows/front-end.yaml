@@ -52,7 +52,7 @@ jobs:
           # file: ./Dockerfile
           push: true
           tags:
-            ${{ secrets.DOCKER_HUB_USERNAME }}/medusa-backend:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/medusa-frontend:${{ github.sha }}
           build-args: |
             # Add your build arguments here if needed
             # ENV_VAR=value
