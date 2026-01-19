@@ -1,0 +1,106 @@
+# ============================================
+# Medusa Backend
+# ============================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: medusa-config
+  namespace: medusa-store
+data:
+  NODE_ENV: "production"
+  REDIS_URL: "redis://example-redis-service:6379"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medusa-backend
+  namespace: medusa-store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medusa-backend
+  template:
+    metadata:
+      labels:
+        app: medusa-backend
+    spec:
+      containers:
+      - name: medusa
+        image: efirshey/medusa-backend:cde1493cb89cdac81a28c462a4cb15eb07560c9f
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: DATABASE_URL
+        - name: REDIS_URL
+          value: "redis://example-redis-service:6379"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: JWT_SECRET
+        - name: COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: COOKIE_SECRET
+        # Optional: CORS settings (uncomment and update if needed)
+        # - name: STORE_CORS
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: medusa-secrets
+        #       key: STORE_CORS
+        # - name: ADMIN_CORS
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: medusa-secrets
+        #       key: ADMIN_CORS
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9000
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medusa-backend
+  namespace: medusa-store
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9000
+    targetPort: 9000
+    protocol: TCP
+    name: http
+  selector:
+    app: medusa-backend
