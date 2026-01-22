@@ -11,12 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
-        with:
-          repository: 'medusa-project-k8s/telegram-bot'
-          ref: 'develop'
-          token: ${{ secrets.MY_PERSONAL_TOKEN }}
 
       - name: Checkout Dockerfile repository
         uses: actions/checkout@v4
