@@ -1,0 +1,9 @@
+- name: apt update (refresh apt cache)
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
