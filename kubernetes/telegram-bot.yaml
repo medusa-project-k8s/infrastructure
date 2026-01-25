@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: telegram-bot
-  namespace: botty
+  namespace: medusa-store
   labels:
     app: telegram-bot
 spec:
@@ -26,6 +26,17 @@ spec:
         - name: telegram-bot
           image: efirshey/telegram-bot:838872184783a0cdbcf78ae3f8e5a7f5d704de44
           imagePullPolicy: Always
+          env:
+          - name: BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: telegram-bot-secrets
+                key: BOT_TOKEN
+          - name: ADMINS
+            valueFrom:
+              secretKeyRef:
+                name: telegram-bot-secrets
+                key: ADMINS
           resources:
             requests:
               memory: "56Mi"

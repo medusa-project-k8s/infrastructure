@@ -21,6 +21,9 @@ resource "proxmox_virtual_environment_vm" "vms" {
     name      = each.key
     node_name = each.value.node_name
 
+    # For ISO-based installs (Talos), boot from disk first after install.
+    boot_order = each.value.template_id == null && each.value.iso_file != null ? [each.value.disk_type, "net0", "ide3"] : [each.value.disk_type, "net0"]
+
     # Clone from template if template_id is provided, otherwise boot from ISO
     dynamic "clone" {
         for_each = each.value.template_id != null ? [1] : []
@@ -29,13 +32,13 @@ resource "proxmox_virtual_environment_vm" "vms" {
         }
     }
 
-    # # Boot from ISO (only if template_id is not provided)
-    # dynamic "cdrom" {
-    #     for_each = each.value.template_id == null && each.value.iso_file != null ? [1] : []
-    #     content {
-    #         file_id = each.value.iso_file
-    #     }
-    # }
+    # Boot from ISO (only if template_id is not provided)
+    dynamic "cdrom" {
+        for_each = each.value.template_id == null && each.value.iso_file != null ? [1] : []
+        content {
+            file_id = each.value.iso_file
+        }
+    }
 
     cpu {
         cores = each.value.cores
@@ -92,8 +95,8 @@ resource "proxmox_virtual_environment_vm" "vms" {
 
     # Ignore changes to cdrom after creation (for ISO-based VMs)
     lifecycle {
-        ignore_changes = [
-            cdrom,
-        ]
+        # Terraform requires this to be a static list (no conditionals here).
+        # This prevents perpetual drift if Proxmox/provider adjusts CDROM metadata.
+        ignore_changes = [cdrom]
     }
 }
