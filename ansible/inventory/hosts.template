@@ -1,0 +1,14 @@
+[haproxy]
+HAProxy-cluster-1 ansible_host=10.0.0.101
+HAProxy-cluster-2 ansible_host=10.0.0.102
+HAProxy-cluster-3 ansible_host=10.0.0.103
+
+[postgres]
+Postgres-cluster-1 ansible_host=10.0.0.104
+Postgres-cluster-2 ansible_host=10.0.0.105
+Postgres-cluster-3 ansible_host=10.0.0.106
+
+[all:vars]
+# Set these to match how cloud-init provisions your template VMs.
+ansible_user=effs
+# ansible_ssh_private_key_file=~/.ssh/id_rsa
