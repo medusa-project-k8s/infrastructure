@@ -29,13 +29,13 @@ resource "proxmox_virtual_environment_vm" "vms" {
         }
     }
 
-    # Boot from ISO (only if template_id is not provided)
-    dynamic "cdrom" {
-        for_each = each.value.template_id == null && each.value.iso_file != null ? [1] : []
-        content {
-            file_id = each.value.iso_file
-        }
-    }
+    # # Boot from ISO (only if template_id is not provided)
+    # dynamic "cdrom" {
+    #     for_each = each.value.template_id == null && each.value.iso_file != null ? [1] : []
+    #     content {
+    #         file_id = each.value.iso_file
+    #     }
+    # }
 
     cpu {
         cores = each.value.cores
