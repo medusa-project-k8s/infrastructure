@@ -1,12 +1,12 @@
 [haproxy]
-HAProxy-cluster-1 ansible_host=10.0.0.101
-HAProxy-cluster-2 ansible_host=10.0.0.102
-HAProxy-cluster-3 ansible_host=10.0.0.103
+HAProxy-cluster-1 ansible_host=IP_OF_HAProxy_1
+HAProxy-cluster-2 ansible_host=IP_OF_HAProxy_2
+HAProxy-cluster-3 ansible_host=IP_OF_HAProxy_3
 
 [postgres]
-Postgres-cluster-1 ansible_host=10.0.0.104
-Postgres-cluster-2 ansible_host=10.0.0.105
-Postgres-cluster-3 ansible_host=10.0.0.106
+Postgres-cluster-1 ansible_host=IP_OF_Postgres_1
+Postgres-cluster-2 ansible_host=IP_OF_Postgres_2
+Postgres-cluster-3 ansible_host=IP_OF_Postgres_3
 
 [all:vars]
 # Set these to match how cloud-init provisions your template VMs.
