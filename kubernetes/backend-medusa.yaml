@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: medusa
-        image: efirshey/medusa-backend:cde1493cb89cdac81a28c462a4cb15eb07560c9f
+        image: efirshey/medusa-backend:62f5c50729898c9a5cce59457a41e68aa4b435b6
         imagePullPolicy: Always
         ports:
         - containerPort: 9000
@@ -82,10 +82,10 @@ spec:
           failureThreshold: 3
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "200m"
-          limits:
             memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
             cpu: "1000m"
       restartPolicy: Always
 
