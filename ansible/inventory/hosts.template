@@ -10,5 +10,5 @@ Postgres-cluster-3 ansible_host=IP_OF_Postgres_3
 
 [all:vars]
 # Set these to match how cloud-init provisions your template VMs.
-ansible_user=effs
+ansible_user=username
 # ansible_ssh_private_key_file=~/.ssh/id_rsa
