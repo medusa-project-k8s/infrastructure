@@ -1,7 +1,11 @@
-Reddis:
+```bash
+talosctl -n 192.168.0.151 apply-config --file worker.yaml --mode auto
+talosctl -n 192.168.0.152 apply-config --file worker-2.yaml --mode auto
+```
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/website/main/content/en/examples/pods/config/redis-pod.yaml
+talosctl -n 192.168.0.151 reboot
+talosctl -n 192.168.0.152 reboot
 ```
 Metric server:
 ```bash

@@ -8,7 +8,7 @@ metadata:
   namespace: medusa-store
 data:
   NODE_ENV: "production"
-  REDIS_URL: "redis://example-redis-service:6379"
+  REDIS_URL: "redis://redis-master.medusa-store.svc.cluster.local:6379"
 
 ---
 apiVersion: apps/v1
@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: medusa
-        image: efirshey/medusa-backend:62f5c50729898c9a5cce59457a41e68aa4b435b6
+        image: efirshey/medusa-backend:b215ff2c8d685d00f1794570f3d3f0e41638460a
         imagePullPolicy: Always
         ports:
         - containerPort: 9000
@@ -42,7 +42,7 @@ spec:
               name: medusa-secrets
               key: DATABASE_URL
         - name: REDIS_URL
-          value: "redis://example-redis-service:6379"
+          value: "redis://redis-master.medusa-store.svc.cluster.local:6379"
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
@@ -64,11 +64,12 @@ spec:
         #     secretKeyRef:
         #       name: medusa-secrets
         #       key: ADMIN_CORS
+        # Allow time for: wait for DB + build (~50s) + migrations; avoid killing pod during startup
         livenessProbe:
           httpGet:
             path: /health
             port: 9000
-          initialDelaySeconds: 60
+          initialDelaySeconds: 180
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
@@ -76,7 +77,7 @@ spec:
           httpGet:
             path: /health
             port: 9000
-          initialDelaySeconds: 30
+          initialDelaySeconds: 120
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3

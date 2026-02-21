@@ -1,1 +1,1 @@
-# here will be the ingress for the medusa store
+# Ingress for the medusa store (optional; use port-forward for local testing)
