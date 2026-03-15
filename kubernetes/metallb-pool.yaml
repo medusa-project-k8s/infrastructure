@@ -1,0 +1,20 @@
+# MetalLB IP pool for LoadBalancer services (e.g. Traefik).
+# Short range: 192.168.0.160. Adjust to match your LAN and keep addresses free.
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: traefik-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.0.160
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: traefik-l2
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - traefik-pool

@@ -8,7 +8,7 @@ metadata:
   namespace: medusa-store
 data:
   NODE_ENV: "production"
-  REDIS_URL: "redis://redis-master.medusa-store.svc.cluster.local:6379"
+#  REDIS_URL: "redis://redis-master.medusa-store.svc.cluster.local:6379"
 
 ---
 apiVersion: apps/v1
@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: medusa
-        image: efirshey/medusa-backend:b215ff2c8d685d00f1794570f3d3f0e41638460a
+        image: efirshey/medusa-backend:714390954639cdf0519db49e2eac5d2945eed340
         imagePullPolicy: Always
         ports:
         - containerPort: 9000
@@ -53,6 +53,9 @@ spec:
             secretKeyRef:
               name: medusa-secrets
               key: COOKIE_SECRET
+        # Public URL for image/file URLs (single entry via Traefik; backend under /api)
+        - name: BACKEND_PUBLIC_URL
+          value: "http://192.168.0.160/api"
         # Optional: CORS settings (uncomment and update if needed)
         # - name: STORE_CORS
         #   valueFrom:
@@ -91,6 +94,7 @@ spec:
       restartPolicy: Always
 
 ---
+# ClusterIP. External: 161 via Traefik (entrypoint webbackend).
 apiVersion: v1
 kind: Service
 metadata:

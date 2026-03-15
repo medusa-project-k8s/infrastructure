@@ -1,0 +1,75 @@
+# ============================================
+# Medusa Frontend
+# ============================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medusa-frontend
+  namespace: medusa-store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medusa-frontend
+  template:
+    metadata:
+      labels:
+        app: medusa-frontend
+    spec:
+      containers:
+      - name: medusa-frontend
+        image: efirshey/medusa-frontend:92b6ded329f16adf79bd590c4f8284ea53b6c6cf
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MEDUSA_BACKEND_URL
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: MEDUSA_BACKEND_URL
+        - name: NEXT_PUBLIC_MEDUSA_BACKEND_URL
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: NEXT_PUBLIC_MEDUSA_BACKEND_URL
+        - name: REACT_APP_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: REACT_APP_API_URL
+        - name: NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+              optional: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+
+
+---
+# ClusterIP. External: 160 via Traefik (entrypoint web).
+apiVersion: v1
+kind: Service
+metadata:
+  name: medusa-frontend
+  namespace: medusa-store
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: medusa-frontend

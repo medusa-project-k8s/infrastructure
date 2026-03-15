@@ -4,10 +4,10 @@ persist: true
 # Provides machine specific configuration options.
 machine:
     type: worker # Defines the role of the machine within the cluster.
-    token: 4hh5oa.pv4cwpqytdv0ltgm # The `token` is used by a machine to join the PKI of the cluster.
+    token: ${MACHINE_TOKEN} # The `token` is used by a machine to join the PKI of the cluster.
     # The root certificate authority of the PKI.
     ca:
-        crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJQakNCOGFBREFnRUNBaEFPUEJHVnprcURZT1pZbUQyOVlhSVJNQVVHQXl0bGNEQVFNUTR3REFZRFZRUUsKRXdWMFlXeHZjekFlRncweU5qQXhNRFV4TnpVd05UbGFGdzB6TmpBeE1ETXhOelV3TlRsYU1CQXhEakFNQmdOVgpCQW9UQlhSaGJHOXpNQ293QlFZREsyVndBeUVBUVpXQVJYa2dMOGtWbU5NVEhXT2hIZGU1bXQrUGJpY3hwVmlZClJtUFFUd3FqWVRCZk1BNEdBMVVkRHdFQi93UUVBd0lDaERBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUkKS3dZQkJRVUhBd0l3RHdZRFZSMFRBUUgvQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVbkdSaitRODZXRzFHUEthegpIMUFlOUtKMTRaY3dCUVlESzJWd0EwRUF5WWNkOTdaQUZ3eDRUTXM4bVNQa3ZyaURxVE9QWUg5TFJDb1AzSXVVCkVqV2puNTlnMG1DK0x4ekpvdVBNaWpya1hjc25ocUlzTkZVZnRlcjZtMlZNQkE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+        crt: ${MACHINE_CA_CRT}
         key: ""
     # Extra certificate subject alternative names for the machine's certificate.
     certSANs: []
@@ -390,11 +390,11 @@ machine:
     #     exampleTaint: exampleTaintValue:NoSchedule
 # Provides cluster specific configuration options.
 cluster:
-    id: 5BCH9ESFApSS_7_epY7bFQeQvpgNLdn3_DFW8Q_pFCU= # Globally unique identifier for this cluster (base64 encoded random 32 bytes).
-    secret: K2GnebVw0edjPHXGyp3RRhtHx56hT+8t2cdKU1mBwbY= # Shared secret of cluster (base64 encoded random 32 bytes).
+    id: ${CLUSTER_ID} # Globally unique identifier for this cluster (base64 encoded random 32 bytes).
+    secret: ${CLUSTER_SECRET} # Shared secret of cluster (base64 encoded random 32 bytes).
     # Provides control plane specific configuration options.
     controlPlane:
-        endpoint: https://192.168.0.150:6443 # Endpoint is the canonical controlplane endpoint, which can be an IP address or a DNS hostname.
+        endpoint: ${CLUSTER_ENDPOINT} # Endpoint is the canonical controlplane endpoint, which can be an IP address or a DNS hostname.
     clusterName: Medusa-cluster # Configures the cluster's name.
     # Provides cluster specific network configuration options.
     network:
@@ -412,10 +412,10 @@ cluster:
         #     # URLs containing manifests to apply for the CNI.
         #     urls:
         #         - https://docs.projectcalico.org/archive/v3.20/manifests/canal.yaml
-    token: k1h5bz.m90y3uodt86hp9k0 # The [bootstrap token](https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/) used to join the cluster.
+    token: ${CLUSTER_TOKEN} # The [bootstrap token](https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/) used to join the cluster.
     # The base64 encoded root certificate authority used by Kubernetes.
     ca:
-        crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJpakNDQVRDZ0F3SUJBZ0lSQUlSTE9QMk1UcVFZWkFmL3VYeFh1UjR3Q2dZSUtvWkl6ajBFQXdJd0ZURVQKTUJFR0ExVUVDaE1LYTNWaVpYSnVaWFJsY3pBZUZ3MHlOakF4TURVeE56VXdOVGxhRncwek5qQXhNRE14TnpVdwpOVGxhTUJVeEV6QVJCZ05WQkFvVENtdDFZbVZ5Ym1WMFpYTXdXVEFUQmdjcWhrak9QUUlCQmdncWhrak9QUU1CCkJ3TkNBQVFtZmo0bWprWXRhOWlYQlZmdXplUi9RSGxxVk8ycEN0L0ZDYmg2RXdFdys5cnVKNExHYXRQZytqLy8KbUx1alBkd0RGa0V5aE1rck1kalUzeG5tdmJEMm8yRXdYekFPQmdOVkhROEJBZjhFQkFNQ0FvUXdIUVlEVlIwbApCQll3RkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0hRWURWUjBPCkJCWUVGR1NsSmVKTGZENWZKTmYzYllTdlJlTzJLNllrTUFvR0NDcUdTTTQ5QkFNQ0EwZ0FNRVVDSUF2ZTM0bGkKUjhWeXRQalNRYjZMR21YOTJKMS9heURGUk9pSTRTZEh6cWtrQWlFQTFuTlorUmkzWEFvdWlLbWxtZEV3R05IKwp2R1BQdjl3bCtLR3lFWUlWVUxnPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+        crt: ${K8S_CA_CRT}
         key: ""
     # Configures cluster member discovery.
     discovery:

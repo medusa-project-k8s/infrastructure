@@ -4,11 +4,11 @@ persist: true
 # Provides machine specific configuration options.
 machine:
     type: controlplane # Defines the role of the machine within the cluster.
-    token: 4hh5oa.pv4cwpqytdv0ltgm # The `token` is used by a machine to join the PKI of the cluster.
+    token: ${MACHINE_TOKEN} # The `token` is used by a machine to join the PKI of the cluster.
     # The root certificate authority of the PKI.
     ca:
-        crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJQakNCOGFBREFnRUNBaEFPUEJHVnprcURZT1pZbUQyOVlhSVJNQVVHQXl0bGNEQVFNUTR3REFZRFZRUUsKRXdWMFlXeHZjekFlRncweU5qQXhNRFV4TnpVd05UbGFGdzB6TmpBeE1ETXhOelV3TlRsYU1CQXhEakFNQmdOVgpCQW9UQlhSaGJHOXpNQ293QlFZREsyVndBeUVBUVpXQVJYa2dMOGtWbU5NVEhXT2hIZGU1bXQrUGJpY3hwVmlZClJtUFFUd3FqWVRCZk1BNEdBMVVkRHdFQi93UUVBd0lDaERBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUkKS3dZQkJRVUhBd0l3RHdZRFZSMFRBUUgvQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVbkdSaitRODZXRzFHUEthegpIMUFlOUtKMTRaY3dCUVlESzJWd0EwRUF5WWNkOTdaQUZ3eDRUTXM4bVNQa3ZyaURxVE9QWUg5TFJDb1AzSXVVCkVqV2puNTlnMG1DK0x4ekpvdVBNaWpya1hjc25ocUlzTkZVZnRlcjZtMlZNQkE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
-        key: LS0tLS1CRUdJTiBFRDI1NTE5IFBSSVZBVEUgS0VZLS0tLS0KTUM0Q0FRQXdCUVlESzJWd0JDSUVJQXV6bVJyRGswZ3o4WHBqYzRyalQwaEVwN3I3SWphOTRnSUM3NitQM2RJSwotLS0tLUVORCBFRDI1NTE5IFBSSVZBVEUgS0VZLS0tLS0K
+        crt: ${MACHINE_CA_CRT}
+        key: ${MACHINE_CA_KEY}
     # Extra certificate subject alternative names for the machine's certificate.
     certSANs: []
     #   # Uncomment this to enable SANs.
@@ -69,7 +69,17 @@ machine:
         #         - '!10.0.0.3/32'
         #         - fdc7::/16
     # Provides machine specific network configuration options.
-    network: {}
+    network:
+        interfaces:
+            - interface: ens18
+              addresses:
+                  - 192.168.0.150/24
+              routes:
+                  - network: 0.0.0.0/0
+                    gateway: 192.168.0.1
+        nameservers:
+            - 192.168.0.1
+
     # # `interfaces` is used to define the network interface configuration.
     # interfaces:
     #     - interface: enp0s1 # The interface name.
@@ -376,11 +386,11 @@ machine:
     #     exampleTaint: exampleTaintValue:NoSchedule
 # Provides cluster specific configuration options.
 cluster:
-    id: 5BCH9ESFApSS_7_epY7bFQeQvpgNLdn3_DFW8Q_pFCU= # Globally unique identifier for this cluster (base64 encoded random 32 bytes).
-    secret: K2GnebVw0edjPHXGyp3RRhtHx56hT+8t2cdKU1mBwbY= # Shared secret of cluster (base64 encoded random 32 bytes).
+    id: ${CLUSTER_ID} # Globally unique identifier for this cluster (base64 encoded random 32 bytes).
+    secret: ${CLUSTER_SECRET} # Shared secret of cluster (base64 encoded random 32 bytes).
     # Provides control plane specific configuration options.
     controlPlane:
-        endpoint: https://192.168.0.150:6443 # Endpoint is the canonical controlplane endpoint, which can be an IP address or a DNS hostname.
+        endpoint: ${CLUSTER_ENDPOINT} # Endpoint is the canonical controlplane endpoint, which can be an IP address or a DNS hostname.
     clusterName: Medusa-cluster # Configures the cluster's name.
     # Provides cluster specific network configuration options.
     network:
@@ -398,19 +408,19 @@ cluster:
         #     # URLs containing manifests to apply for the CNI.
         #     urls:
         #         - https://docs.projectcalico.org/archive/v3.20/manifests/canal.yaml
-    token: k1h5bz.m90y3uodt86hp9k0 # The [bootstrap token](https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/) used to join the cluster.
-    secretboxEncryptionSecret: +P/fQTfPHCvR6YyZmtm7idrdWz4f+1AJhuNhHC//z3M= # A key used for the [encryption of secret data at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/).
+    token: ${CLUSTER_TOKEN} # The [bootstrap token](https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/) used to join the cluster.
+    secretboxEncryptionSecret: ${SECRETBOX_ENCRYPTION_SECRET} # A key used for the [encryption of secret data at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/).
     # The base64 encoded root certificate authority used by Kubernetes.
     ca:
-        crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJpakNDQVRDZ0F3SUJBZ0lSQUlSTE9QMk1UcVFZWkFmL3VYeFh1UjR3Q2dZSUtvWkl6ajBFQXdJd0ZURVQKTUJFR0ExVUVDaE1LYTNWaVpYSnVaWFJsY3pBZUZ3MHlOakF4TURVeE56VXdOVGxhRncwek5qQXhNRE14TnpVdwpOVGxhTUJVeEV6QVJCZ05WQkFvVENtdDFZbVZ5Ym1WMFpYTXdXVEFUQmdjcWhrak9QUUlCQmdncWhrak9QUU1CCkJ3TkNBQVFtZmo0bWprWXRhOWlYQlZmdXplUi9RSGxxVk8ycEN0L0ZDYmg2RXdFdys5cnVKNExHYXRQZytqLy8KbUx1alBkd0RGa0V5aE1rck1kalUzeG5tdmJEMm8yRXdYekFPQmdOVkhROEJBZjhFQkFNQ0FvUXdIUVlEVlIwbApCQll3RkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0hRWURWUjBPCkJCWUVGR1NsSmVKTGZENWZKTmYzYllTdlJlTzJLNllrTUFvR0NDcUdTTTQ5QkFNQ0EwZ0FNRVVDSUF2ZTM0bGkKUjhWeXRQalNRYjZMR21YOTJKMS9heURGUk9pSTRTZEh6cWtrQWlFQTFuTlorUmkzWEFvdWlLbWxtZEV3R05IKwp2R1BQdjl3bCtLR3lFWUlWVUxnPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
-        key: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSU8yWnAwWTc2cnFMVyt2QnoyQTJhWG95MjJhS1ZJajZoZnVEazdoQjJwcmxvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFSm40K0pvNUdMV3ZZbHdWWDdzM2tmMEI1YWxUdHFRcmZ4UW00ZWhNQk1QdmE3aWVDeG1yVAo0UG8vLzVpN296M2NBeFpCTW9USkt6SFkxTjhaNXIydzlnPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=
+        crt: ${K8S_CA_CRT}
+        key: ${K8S_CA_KEY}
     # The base64 encoded aggregator certificate authority used by Kubernetes for front-proxy certificate generation.
     aggregatorCA:
-        crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJZRENDQVFXZ0F3SUJBZ0lRQlVYcy9qVzhldmo5amdrd2dBbWpUekFLQmdncWhrak9QUVFEQWpBQU1CNFgKRFRJMk1ERXdOVEUzTlRBMU9Wb1hEVE0yTURFd016RTNOVEExT1Zvd0FEQlpNQk1HQnlxR1NNNDlBZ0VHQ0NxRwpTTTQ5QXdFSEEwSUFCSTF1UEpsdHQ2ejlFM2tvbC81RzArdHNXMitHNlgwKzV0aGdqVzJGTEVhSE90anZzcXFIClJ0cUw4MUtWRTEvYlh6aVNYTkQ2bTRiTm1QOG9tZzU3SGpTallUQmZNQTRHQTFVZER3RUIvd1FFQXdJQ2hEQWQKQmdOVkhTVUVGakFVQmdnckJnRUZCUWNEQVFZSUt3WUJCUVVIQXdJd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZApCZ05WSFE0RUZnUVU1MnZJTlI1OC8zRTRCVWE1d0ZJKzlKaVlkWW93Q2dZSUtvWkl6ajBFQXdJRFNRQXdSZ0loCkFLZGs0UlpFQmNSZzNqQXhBKzJCcHUwWS8xNmlTMEFlZ25sUVY2QkJTUlBPQWlFQWwxeFA1S3lHTWZvRmtEWXkKUWZnTEFudEtEcU1YOElFR1h2UEZ5Z1U2UVlzPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
-        key: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSU1UdVpzUnFaOWlmOUhNZGZsY29HTDFQVVZZVXV5UGZKSDBmVS8zeUhBM0ZvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFalc0OG1XMjNyUDBUZVNpWC9rYlQ2MnhiYjRicGZUN20yR0NOYllVc1JvYzYyTyt5cW9kRwoyb3Z6VXBVVFg5dGZPSkpjMFBxYmhzMlkveWlhRG5zZU5BPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=
+        crt: ${AGGREGATOR_CA_CRT}
+        key: ${AGGREGATOR_CA_KEY}
     # The base64 encoded private key for service account token generation.
     serviceAccount:
-        key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBb3VPSUJhcVJmV2ZPeHJTL01yUVRuZ00vQ3hkcTVlTEFUZE9IM3BRSjhwNjZjTFRiClpzUXExR251K2RkWHM4ZkNPUGQxYlZNMXJoWUhTWXRkbTZhd0d3SzVzcVo0R0pJVXpFYmhtaStrMjFUdW5xYTYKUGdST2NuUjVoT1E2WEF6SnlxOEkwVy9iRUZNUklPaDh2S2prNCtqSXlqbW5aelR4Z1o0UCtKMVg5U3VVdElZWgpjZmd1dERVejBDSXNCay9NNGU4c0xkajBaQzQvYy9BaCsrWUVWdHovY0JyMGQzSkpNQVI3R0dEZDRWTDdGRmlmCkkycStlQzcxaE1RTHQzNkV0YnhKLzgrWjB6R1hhbnVJVld4dm1HSUdwa3NjR2FkZk4rTmtjTmFYYVVnZEI3aWgKUjlocjFPUGVNQThYVUdaQWpUTXk0Mk5EL2RQaWV3NVR1SEoyazJSWWFjbU04Mm1aQ3RCTDl0eVBSZWM0WW81NwpNdy92by9kVzlsVUtBWVF5cXQ5RnovOFFRWGY2Rm8rRzFyRGt2dUwyaGYxb1c3RmF2UVlkcmkza3AxT0pJWnN3CmY4bVkvT2RtZXNlcDQ4NFNvOEVucXRWNUNORkdWWXp2UnZvS0RFdW8waWJaYWFUWDhyaW1LbVpuUkQ1cjk0YW0KUE9Zc0ZlVWhGakZVOFNvVm9BRTdERm5STFpsSEtXcFBxbUhRUENaZm5xU09NZWJUTEIyUFh0aGhTR1gvbTR1YQpmVlRhbmNoc1FZcXRVbzhoSnN4STF1aXR6YkxuOTJkdWZQSFMvK2E4ZjVCdXp3NU9nVFgzWU5jeTNPbGoyMUl6CmhRVUxTZE9KaHVoS3EyNkM1elgxZFpaUCtNTUo1dFBmbkZtMFR0anFybEZZRGcvQXh1bzcrL1BjaFpjQ0F3RUEKQVFLQ0FnQlE0dXdJNUVxYkc1RnkydzZXL3hVK3doM3NSQlN4VTRockhUKzdKNGhKRXNsQ2JvMEUyeVRwbGpFMQpuOW5OVE1VRnhOeHJEWWI2aTdYU3I0SXNhUG5LYi9BRzV1TjhVQTVENG03bFFnTjdaeEdYZHZQRkdCNWNkN3BnClkzVVhnTUkwQS9jOUNXNmZES0RVMXA0YWtVUVlhT0JNaTVTMWkzVGlDTHVsbVh5MElwQVZsUUhOdHBCNnJIQ3UKU2tuU1dJNUZJNStzcEsrM2o3K3lzdXd0U211ZE51RWhxa0Q3ajZVSVV6Rk5TY3prdDNBM0NrcjhLMldxQ0tlaQo1amRyUjBoZmRzRElaeTdiMFNSL25CaDNVd0dYaWhZRFBna1dOQ2IwZWRiR3NjaytYckVMeElOU1NnWkNFV1drCk45bzc4b3Jia3pFUitaa3AwcTRFclhpbGZ6R2g5SGthQ2w3QWx2NmNWQStrclF2a2pjRlRPTENpWlpTRm5NeHUKNEFJVFZKbk00SFNIYTdaazdRUXFodjk0UTRSdTcrT1lKVDBMaUh1MWpxYWUybGUwckpMbng3Q0c4SFArN2VwOQpnTm1NV0srWGNJVGZqK0lLZlRUWTlQbDhXVEIrL3VqR0o5Y2RHdC9iR29NcEFKblNMTGpGWDZhays5STkydkNYClFXZVIwU215Mmw0QVVGVllXL1V2dHpqaTNzWEx0Vi9rRzd5aGJ1SU9QeGl1S0NZUWtzT052ODZjUWVIeVg0U04KK0RWV1J4bDBmYXlJNXdpTzNmcDByUDAzQXFKZ3VMdHZzZXBZYlRIZ1BjRnNzTDBQMHpOcnViNmFWZzZ0VCtkNQpPbE0wazJPMkpSdkQrZGZZRGZlS1h4djIxam5FUUlROGcwSWhTZkk0ZmtFVzNLMkNBUUtDQVFFQXdaRVk3K0dMCmtsQVVQTnFpRFFDK1QzbkNTTzhNRFRxM0doS3plTWVFL25xZTVXUkx5bUh4VDZxUlE0TmgwY3U2RFhPYnBuVm0KYUxyMjRYc1hlcEl5bllRYkIzZTcxRnFOMWMvcnlqeE1uVDUvN1hJdnpOOXVRNE5RSzducEhvSUxwRWQrZ1FIWQpSakNhNHdpNVoxTER2ZXlqSHpUR0FsZkhFMHVncXNiWVh0SlE0eEF3YWFPZ3NIUHQvcEJJcUZRcVZIangza3BLCmZ0N0poSktQTnQzSUpodEJHS3kwNHpJQ3ZWcW0zcUp3ZURXeGhLbHQxenZLcnMwR3RYYU9WTlRBcXFHQmduQkMKLzA0eEZmd2tRL3ZGT3hMdkFBVURYNW1OcEVKVk52RDBIWFRGbzU2WG1QUkpFbnppckFjWHlUNXlGTmREdnAxSAp3cWVCeVBOYi8xa0JlUUtDQVFFQTEyMVdYRjZMYWd0a0xlZXllaGZVcTFVbHV4SWJRYlZYTkxrNE1MUmRJVzVICjdrcHNDZWZUaDJPNWtTaDNIUXdKTklRY1hOTGJrSTh0QS9FRThsT1lyR1VGM1VqaTZYUHQ2OEdEVWxRUUgvN08KUGJaY2FYLzQ5SGdWNm9DL0lHYldQbG44ckdpRkpVa0cweHlJWUhsTFZsKzQ1bmU0a2RaZkUrdzQrSmdEdE9VaQpSNUdhWU1kSWpwcEFXNUhkNDNRdkRybnJmTUhKWEZrWWxTaEJKb1BQV0tkdXo5ZXBtclFHaERmQ2VDbDZxUXUyCmk1UkljVGF2WkxGU2psWEszcjZKQndYSUZOWnhNT2NKQkVkdEE2aGN4clVkem5OUjZKVXpndkFHNHRkMWtNMGMKdURWUkc1ajNJZlJJTVp6d2FNOUVSS05zaHlrK2gxZ3VXSFlGS2hpTGp3S0NBUUVBaXgxNkc2VXhCMVhRUmJBbwpPVW9vZkx3WWV3eDZ6K004QjF3YmFwbVNwc1ovL29ObnlTczlJREdKTjBsc2V6aDlIZi9SaFAvcE95bnNGeis5Ckx4VjFsU21GdDRkQkVpeUd0WDA2akYxci9yTVZoQlRGNyt0QXR2cmdHcDBCd3pCWnA1Yk9mMjlRL1prZktENXoKNmFOZEZObkducjN4OVdzYW8yNStLVjdCME53ODBBUXBsekxIWVNuZ2lVMHZPdk5LZk8xemYzeExNQVYwTlhpVAp2eTRFRkFjUWNPaG5GTVl6bTkxVUFyd2lNdkw4QTBrMXJUUEd4bnlKN3M4bkdpYlIxWkEvb1B5SDJpOWJMZDdLClBhWHNLVG5CVlhWRTZHZFdtaEFtYUZjaVN5MUtnZjZRRzVpdUQ4Qjd0SUZnZ2YwRVJxQXppd0pFdWN4amhZWUoKdjJvN21RS0NBUUVBZy9ST0ZOQTRseUVaSU9FdU9va0VWRm9ZZldqTzEwWExmOWtBS1IwaGVvdkJkWjJTWmRMaApoNm0zRGNuNmhBbE9UaU9wOTlXVWRneXRKeC9ueHNNYjNtVVczWDk2dGtLemRsZ1hKME9raU9TYjBjTTFBYzVJCllQNTVkaVdjYksxeEI4bzQ4aVluZ0RvbCt3UWNLUFBEQ01valNOQUdkeFlYTU8zZHk2L1pmV0ZveU92UDR2M08KWE1MeEx1Vy9RMFowV0pIYlE1U3owV1Fsb1orQm9LVFdTZGh0RU5ScDUvL2ppZk5acEI3TUttV3BULy9wQzZmUwpjVndJVkhVS2lidXQxV1plTXgxVFFnQVNUdE90VzdNeCtPa1JzOWFCVW5TcGs4ZVFnRHczb0JWelJRWXJnenNFCkRZRkRBMWk5RFlYL3JBZHFQN1Fzdjl4c3J2VERueEJmMHdLQ0FRQm9IMG85UUlnbURCUTlMN1BkdDdaSUt6QlcKSFM2N1RTOU9mT0dpUzVXWHBteHh1TDl5R3E3bExMNzM3NnVPLzdoQ3VHbjZvS2tRd3BaVTlEU1BWQnN6RFFMMwp1NFFkRkU1WURuc3pLaEJPRVc0Qm9YYUxVTEl6cUVBNksvUU1vMHgyb2owR0hjcWZVOVMyN2hna0VoWlFybG5hCnhEZUJtUkdjUzdRTGVXRExGaEc0RmZMVnY4Y2VxcHBxS1RRcHloWWRIdjkrK1RLVVVWM0ZxbWFTQ1dnOWpuVmUKekxQMjlIeWlJQ0o5RTBrWTZETFJDQkZ2L0ZSZmpML2hCeVpTTnFjMGJxajRYdFdjQUFpNGhoeUVUM3dzbnEzKwp1MFgrVDV6SHdSbFdaOXFUWTd1UmV5bXQzRk9rdGV2bkNRWVh3Ylp2REJkYjl4dDByTWFQQkIvTE8weGcKLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K
+        key: ${SERVICE_ACCOUNT_KEY}
     # API server specific configuration options.
     apiServer:
         image: registry.k8s.io/kube-apiserver:v1.34.1 # The container image used in the API server manifest.
@@ -497,8 +507,8 @@ cluster:
     etcd:
         # The `ca` is the root certificate authority of the PKI.
         ca:
-            crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJmVENDQVNPZ0F3SUJBZ0lRYkNBeWRiOEx3dG14NjlJM1plOFVJREFLQmdncWhrak9QUVFEQWpBUE1RMHcKQ3dZRFZRUUtFd1JsZEdOa01CNFhEVEkyTURFd05URTNOVEExT1ZvWERUTTJNREV3TXpFM05UQTFPVm93RHpFTgpNQXNHQTFVRUNoTUVaWFJqWkRCWk1CTUdCeXFHU000OUFnRUdDQ3FHU000OUF3RUhBMElBQkM2eEZ6eFZDZkNOCmpNOVdUTGtMWUhCck5oRXM3dlBIRXB5UCs3U3ZZZ2ticll1dFBPcTRMN3hKcXZGVXplakowTGlJdWJYY0VaejQKOWduYnVJU2g5MDZqWVRCZk1BNEdBMVVkRHdFQi93UUVBd0lDaERBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjRApBUVlJS3dZQkJRVUhBd0l3RHdZRFZSMFRBUUgvQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVSURRMlJtSTZxd042CkJVUFBaZlF1MUJqRk90MHdDZ1lJS29aSXpqMEVBd0lEU0FBd1JRSWdTUk00TFE0V09jZGR3a3FRSy9WRURLc3MKQ0ptaHFadW1MSVArd2pIVHVHSUNJUUQrL1Erbkk2WFZ5Qk0vSzBEWlZSQWZWcW9RZ1dZTWU4enUxVmJPNzY5ago3dz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-            key: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSUcwMFZqb2tKYmNzMlNvVTVWZzhPdEo3SkVsNFB0b09XME9FRHF6VlFvajlvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFTHJFWFBGVUo4STJNejFaTXVRdGdjR3MyRVN6dTg4Y1NuSS83dEs5aUNSdXRpNjA4NnJndgp2RW1xOFZUTjZNblF1SWk1dGR3Um5QajJDZHU0aEtIM1RnPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=
+            crt: ${ETCD_CA_CRT}
+            key: ${ETCD_CA_KEY}
         
         # # The container image used to create the etcd service.
         # image: gcr.io/etcd-development/etcd:v3.6.5

@@ -1,0 +1,45 @@
+# Minimal Redis for Medusa (no persistence). Backend REDIS_URL: redis://redis-master.medusa-store.svc.cluster.local:6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-master
+  namespace: medusa-store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-master
+  template:
+    metadata:
+      labels:
+        app: redis-master
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+              name: redis
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-master
+  namespace: medusa-store
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+      name: redis
+  selector:
+    app: redis-master
