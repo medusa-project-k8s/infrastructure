@@ -22,3 +22,24 @@ kubectl top nodes
 kubectl top pods -A
 ```
 
+```bash
+
+# 1. Strict ARP (if kube-proxy IPVS or to be safe)
+kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e 's/strictARP: false/strictARP: true/' | kubectl apply -f - -n kube-system
+kubectl -n kube-system rollout restart daemonset/kube-proxy
+kubectl -n kube-system rollout status daemonset/kube-proxy
+
+# 2. Install MetalLB
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+
+# 3. Wait for MetalLB
+kubectl -n metallb-system rollout status daemonset/speaker
+kubectl -n metallb-system rollout status deployment/controller
+
+# 4. Apply your pool (from repo kubernetes/ dir)
+kubectl apply -f metallb-pool.yaml
+
+kubectl get pods -n metallb-system
+kubectl -n metallb-system get svc
+kubectl delete validatingwebhookconfiguration metallb-webhook-configuration
+kubectl apply -f metallb-pool.yaml
