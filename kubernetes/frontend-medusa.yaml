@@ -1,6 +1,7 @@
 # ============================================
 # Medusa Frontend
 # ============================================
+# Middleware (Node): DEFAULT_REGION, MEDUSA_BACKEND_URL from Secret. NEXT_PUBLIC_* baked at build.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,7 +19,7 @@ spec:
     spec:
       containers:
       - name: medusa-frontend
-        image: efirshey/medusa-frontend:92b6ded329f16adf79bd590c4f8284ea53b6c6cf
+        image: efirshey/medusa-frontend:6eaed04ebc75607cd0108ba37312a2f61a0b696e
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
@@ -46,6 +47,24 @@ spec:
             secretKeyRef:
               name: medusa-secrets
               key: NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+              optional: true
+        - name: MEDUSA_PUBLISHABLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: MEDUSA_PUBLISHABLE_KEY
+              optional: true
+        - name: DEFAULT_REGION
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: DEFAULT_REGION
+              optional: true
+        - name: REGION_MIDDLEWARE_STATIC
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: REGION_MIDDLEWARE_STATIC
               optional: true
         resources:
           requests:

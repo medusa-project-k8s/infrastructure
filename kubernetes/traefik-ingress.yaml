@@ -1,43 +1,45 @@
-# Single entry: Client -> Traefik (LoadBalancer) -> frontend or backend by path.
-# Apply: traefik-middleware.yaml first (requires Traefik CRD provider).
+# Traefik IngressRoutes — Medusa API host + shop host (Next + Medusa paths on same domain).
+#
+# DNS /etc/hosts:  192.168.0.160  persephone.com api.persephone.com
+#
+# - api.persephone.com → Medusa only (store API, admin at /app, /admin, /auth, /static).
+# - persephone.com → Next.js, except /app /admin /auth /{xx}/admin → Medusa (Admin on shop domain).
+#
+# Apply: kubectl apply -f traefik-ingress.yaml
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
-  name: medusa-backend
+  name: medusa-api-host
   namespace: medusa-store
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/router.middlewares: medusa-store-strip-api@kubernetescrd
 spec:
-  ingressClassName: traefik
-  rules:
-    - http:
-        paths:
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: medusa-backend
-                port:
-                  number: 9000
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`api.persephone.com`)
+      kind: Rule
+      services:
+        - name: medusa-backend
+          port: 9000
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
-  name: medusa-frontend
+  name: medusa-storefront-host
   namespace: medusa-store
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
-  ingressClassName: traefik
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: medusa-frontend
-                port:
-                  number: 8000
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`persephone.com`) && (PathPrefix(`/app`) || PathPrefix(`/admin`) || PathPrefix(`/auth`) || PathRegexp(`^/[a-z]{2}/admin`))
+      kind: Rule
+      priority: 100
+      services:
+        - name: medusa-backend
+          port: 9000
+    - match: Host(`persephone.com`) && PathPrefix(`/`)
+      kind: Rule
+      priority: 1
+      services:
+        - name: medusa-frontend
+          port: 8000

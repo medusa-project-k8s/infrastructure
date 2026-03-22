@@ -17,6 +17,11 @@ metadata:
   name: medusa-backend
   namespace: medusa-store
 spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   replicas: 1
   selector:
     matchLabels:
@@ -26,6 +31,7 @@ spec:
       labels:
         app: medusa-backend
     spec:
+      terminationGracePeriodSeconds: 180
       containers:
       - name: medusa
         image: efirshey/medusa-backend:714390954639cdf0519db49e2eac5d2945eed340
@@ -53,20 +59,24 @@ spec:
             secretKeyRef:
               name: medusa-secrets
               key: COOKIE_SECRET
-        # Public URL for image/file URLs (single entry via Traefik; backend under /api)
+        # Public URL for image/file URLs — use API hostname (see traefik-ingress.yaml)
         - name: BACKEND_PUBLIC_URL
-          value: "http://192.168.0.160/api"
-        # Optional: CORS settings (uncomment and update if needed)
-        # - name: STORE_CORS
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: medusa-secrets
-        #       key: STORE_CORS
-        # - name: ADMIN_CORS
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: medusa-secrets
-        #       key: ADMIN_CORS
+          value: "http://api.persephone.com"
+        - name: STORE_CORS
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: STORE_CORS
+        - name: ADMIN_CORS
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: ADMIN_CORS
+        - name: AUTH_CORS
+          valueFrom:
+            secretKeyRef:
+              name: medusa-secrets
+              key: AUTH_CORS
         # Allow time for: wait for DB + build (~50s) + migrations; avoid killing pod during startup
         livenessProbe:
           httpGet:
