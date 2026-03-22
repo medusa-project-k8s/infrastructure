@@ -1,5 +1,6 @@
 # ============================================
-# Medusa Backend
+# Medusa Backend (StatefulSet)
+# Switching from Deployment: kubectl delete deployment medusa-backend -n medusa-store
 # ============================================
 apiVersion: v1
 kind: ConfigMap
@@ -12,17 +13,18 @@ data:
 
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: medusa-backend
   namespace: medusa-store
 spec:
-  strategy:
+  serviceName: medusa-backend-headless
+  replicas: 1
+  podManagementPolicy: OrderedReady
+  updateStrategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-  replicas: 1
+      partition: 0
   selector:
     matchLabels:
       app: medusa-backend
@@ -32,6 +34,14 @@ spec:
         app: medusa-backend
     spec:
       terminationGracePeriodSeconds: 180
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: ["backend-worker"]
       containers:
       - name: medusa
         image: efirshey/medusa-backend:714390954639cdf0519db49e2eac5d2945eed340
@@ -97,25 +107,25 @@ spec:
         resources:
           requests:
             memory: "1Gi"
-            cpu: "500m"
+            cpu: "250m"
           limits:
             memory: "2Gi"
-            cpu: "1000m"
+            cpu: "500m"
       restartPolicy: Always
-
 ---
-# ClusterIP. External: 161 via Traefik (entrypoint webbackend).
+
+# Headless service — required by StatefulSet (spec.serviceName). Stable DNS: medusa-backend-0.medusa-backend-headless.medusa-store.svc.cluster.local
 apiVersion: v1
 kind: Service
 metadata:
-  name: medusa-backend
+  name: medusa-backend-headless
   namespace: medusa-store
 spec:
-  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: medusa-backend
   ports:
   - port: 9000
     targetPort: 9000
     protocol: TCP
     name: http
-  selector:
-    app: medusa-backend
