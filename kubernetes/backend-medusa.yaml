@@ -12,6 +12,7 @@ data:
 #  REDIS_URL: "redis://redis-master.medusa-store.svc.cluster.local:6379"
 
 ---
+# PVC: static local PV — apply kubernetes/medusa-static-pv-talos.yaml first.
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -33,7 +34,6 @@ spec:
       labels:
         app: medusa-backend
     spec:
-      terminationGracePeriodSeconds: 180
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -42,6 +42,10 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values: ["backend-worker"]
+      volumes:
+        - name: static-files
+          persistentVolumeClaim:
+            claimName: medusa-static-files
       containers:
       - name: medusa
         image: efirshey/medusa-backend:714390954639cdf0519db49e2eac5d2945eed340
@@ -49,6 +53,11 @@ spec:
         ports:
         - containerPort: 9000
           name: http
+        # Must match Dockerfile WORKDIR + file-local default upload_dir ("static").
+        # Image uses WORKDIR /server → files are written to /server/static, NOT /app/static.
+        volumeMounts:
+        - name: static-files
+          mountPath: /server/static
         env:
         - name: NODE_ENV
           value: "production"
@@ -107,10 +116,8 @@ spec:
         resources:
           requests:
             memory: "1Gi"
-            cpu: "250m"
           limits:
             memory: "2Gi"
-            cpu: "500m"
       restartPolicy: Always
 ---
 

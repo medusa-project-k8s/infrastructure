@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: medusa-static-pv
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: medusa-local-static
+  local:
+    path: /var/local/medusa/static
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - backend-worker
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: medusa-static-files
+  namespace: medusa-store
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: medusa-local-static
+  resources:
+    requests:
+      storage: 20Gi
