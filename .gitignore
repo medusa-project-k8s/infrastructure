@@ -3,8 +3,10 @@ docker-compose.yaml
 .env
 talos_linux_setup/persephone-shop
 
+
 # Environment files
 .env
+**/kubeconfig-medusa
 
 # Terraform files
 **/.terraform/*
