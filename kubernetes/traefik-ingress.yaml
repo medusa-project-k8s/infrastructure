@@ -1,12 +1,3 @@
-# Traefik IngressRoutes — Medusa API host + shop host (Next + Medusa paths on same domain).
-#
-# DNS /etc/hosts:  192.168.0.160  persephone.com api.persephone.com
-#
-# - api.persephone.com → Medusa only (store API, admin at /app, /admin, /auth, /static).
-# - persephone.com → Next.js, except /app /admin /auth /{xx}/admin → Medusa (Admin on shop domain).
-#
-# Apply: kubectl apply -f traefik-ingress.yaml
----
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -43,3 +34,38 @@ spec:
       services:
         - name: medusa-frontend
           port: 8000
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard-redirect
+  namespace: traefik
+spec:
+  redirectRegex:
+    regex: "^https?://traefik\\.persephone\\.com/?$"
+    replacement: "http://traefik.persephone.com/dashboard/"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`traefik.persephone.com`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+      kind: Rule
+      priority: 10000
+      services:
+        - name: api@internal
+          kind: TraefikService
+    - match: Host(`traefik.persephone.com`) && Path(`/`)
+      kind: Rule
+      priority: 9000
+      middlewares:
+        - name: traefik-dashboard-redirect
+      services:
+        # Redirect-only route; noop@internal is Traefik’s no-op backend
+        - name: noop@internal
+          kind: TraefikService
