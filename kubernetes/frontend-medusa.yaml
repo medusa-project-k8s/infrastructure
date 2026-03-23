@@ -27,7 +27,7 @@ spec:
                     values: ["frontend-worker"]
       containers:
       - name: medusa-frontend
-        image: efirshey/medusa-frontend:6eaed04ebc75607cd0108ba37312a2f61a0b696e
+        image: efirshey/medusa-frontend:4c5a44aee596a7ed0226d805115dabfbc34a07ac
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
